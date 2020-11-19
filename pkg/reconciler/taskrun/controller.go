@@ -18,6 +18,8 @@ package taskrun
 
 import (
 	"context"
+	"fmt"
+	"time"
 
 	"github.com/tektoncd/pipeline/pkg/apis/config"
 	"github.com/tektoncd/pipeline/pkg/apis/pipeline"
@@ -32,9 +34,12 @@ import (
 	cloudeventclient "github.com/tektoncd/pipeline/pkg/reconciler/events/cloudevent"
 	"github.com/tektoncd/pipeline/pkg/reconciler/volumeclaim"
 	"github.com/tektoncd/pipeline/pkg/timeout"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/client-go/informers"
+	informersv1 "k8s.io/client-go/informers/core/v1"
+	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/cache"
 	kubeclient "knative.dev/pkg/client/injection/kube/client"
-	podinformer "knative.dev/pkg/client/injection/kube/informers/core/v1/pod"
 	"knative.dev/pkg/configmap"
 	"knative.dev/pkg/controller"
 	"knative.dev/pkg/logging"
@@ -50,7 +55,7 @@ func NewController(namespace string, images pipeline.Images) func(context.Contex
 		taskRunInformer := taskruninformer.Get(ctx)
 		taskInformer := taskinformer.Get(ctx)
 		clusterTaskInformer := clustertaskinformer.Get(ctx)
-		podInformer := podinformer.Get(ctx)
+		podInformer := foobar(ctx, kubeclientset)
 		resourceInformer := resourceinformer.Get(ctx)
 		timeoutHandler := timeout.NewHandler(ctx.Done(), logger)
 		metrics, err := NewRecorder()
@@ -107,4 +112,23 @@ func NewController(namespace string, images pipeline.Images) func(context.Contex
 
 		return impl
 	}
+}
+
+func foobar(ctx context.Context, client kubernetes.Interface) informersv1.PodInformer {
+	logger := logging.FromContext(ctx)
+
+	informers := informers.NewSharedInformerFactoryWithOptions(client, 10*time.Hour, informers.WithTweakListOptions(func(listOptions *metav1.ListOptions) {
+		logger.Infof("Setting label selector using %s=%s", "app.kubernetes.io/managed-by", config.DefaultManagedByLabelValue)
+		listOptions.LabelSelector = fmt.Sprintf("%s=%s",
+			"app.kubernetes.io/managed-by",
+			config.DefaultManagedByLabelValue,
+		)
+	}))
+
+	podInformer := informers.Core().V1().Pods()
+	informers.Start(ctx.Done())
+
+	cache.WaitForCacheSync(ctx.Done(), podInformer.Informer().HasSynced)
+
+	return podInformer
 }
