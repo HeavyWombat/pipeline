@@ -18,6 +18,7 @@ package taskrun
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/tektoncd/pipeline/pkg/apis/config"
 	"github.com/tektoncd/pipeline/pkg/apis/pipeline"
@@ -34,11 +35,14 @@ import (
 	"github.com/tektoncd/pipeline/pkg/timeout"
 	"k8s.io/client-go/tools/cache"
 	kubeclient "knative.dev/pkg/client/injection/kube/client"
-	podinformer "knative.dev/pkg/client/injection/kube/informers/core/v1/pod"
 	"knative.dev/pkg/configmap"
 	"knative.dev/pkg/controller"
+	"knative.dev/pkg/injection"
 	"knative.dev/pkg/logging"
 	"knative.dev/pkg/tracker"
+
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/client-go/informers"
 )
 
 // NewController instantiates a new controller.Impl from knative.dev/pkg/controller
@@ -46,11 +50,29 @@ func NewController(namespace string, images pipeline.Images) func(context.Contex
 	return func(ctx context.Context, cmw configmap.Watcher) *controller.Impl {
 		logger := logging.FromContext(ctx)
 		kubeclientset := kubeclient.Get(ctx)
+
+		informers := informers.NewSharedInformerFactoryWithOptions(
+			kubeclientset,
+			controller.GetResyncPeriod(ctx),
+			informers.WithNamespace(injection.GetNamespaceScope(ctx)),
+			informers.WithTweakListOptions(func(listOptions *metav1.ListOptions) {
+				listOptions.LabelSelector = fmt.Sprintf("%s=%s",
+					"app.kubernetes.io/managed-by",
+					config.DefaultManagedByLabelValue,
+				)
+			}),
+		)
+
+		podInformer := informers.Core().V1().Pods()
+		go informers.Start(ctx.Done())
+
+		cache.WaitForCacheSync(ctx.Done(), podInformer.Informer().HasSynced)
+
 		pipelineclientset := pipelineclient.Get(ctx)
 		taskRunInformer := taskruninformer.Get(ctx)
 		taskInformer := taskinformer.Get(ctx)
 		clusterTaskInformer := clustertaskinformer.Get(ctx)
-		podInformer := podinformer.Get(ctx)
+		// podInformer := podinformer.Get(ctx)
 		resourceInformer := resourceinformer.Get(ctx)
 		timeoutHandler := timeout.NewHandler(ctx.Done(), logger)
 		metrics, err := NewRecorder()
