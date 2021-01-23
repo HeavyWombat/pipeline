@@ -937,7 +937,7 @@ k8s.io/utils/buffer
 k8s.io/utils/integer
 k8s.io/utils/pointer
 k8s.io/utils/trace
-# knative.dev/pkg v0.0.0-20210107022335-51c72e24c179
+# knative.dev/pkg v0.0.0-20210120200253-8cd47b5af35d
 knative.dev/pkg/apis
 knative.dev/pkg/apis/duck
 knative.dev/pkg/apis/duck/ducktypes
@@ -953,12 +953,14 @@ knative.dev/pkg/client/injection/kube/informers/admissionregistration/v1/mutatin
 knative.dev/pkg/client/injection/kube/informers/admissionregistration/v1/validatingwebhookconfiguration
 knative.dev/pkg/client/injection/kube/informers/core/v1/configmap
 knative.dev/pkg/client/injection/kube/informers/core/v1/configmap/fake
-knative.dev/pkg/client/injection/kube/informers/core/v1/pod
-knative.dev/pkg/client/injection/kube/informers/core/v1/pod/fake
+knative.dev/pkg/client/injection/kube/informers/core/v1/pod/filtered
+knative.dev/pkg/client/injection/kube/informers/core/v1/pod/filtered/fake
 knative.dev/pkg/client/injection/kube/informers/core/v1/serviceaccount
 knative.dev/pkg/client/injection/kube/informers/core/v1/serviceaccount/fake
 knative.dev/pkg/client/injection/kube/informers/factory
 knative.dev/pkg/client/injection/kube/informers/factory/fake
+knative.dev/pkg/client/injection/kube/informers/factory/filtered
+knative.dev/pkg/client/injection/kube/informers/factory/filtered/fake
 knative.dev/pkg/codegen/cmd/injection-gen
 knative.dev/pkg/codegen/cmd/injection-gen/args
 knative.dev/pkg/codegen/cmd/injection-gen/generators

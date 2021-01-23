@@ -3,7 +3,7 @@ module github.com/tektoncd/pipeline
 go 1.13
 
 require (
-	cloud.google.com/go/storage v1.11.0 // indirect
+	cloud.google.com/go/storage v1.11.0
 	github.com/GoogleCloudPlatform/cloud-builders/gcs-fetcher v0.0.0-20191203181535-308b93ad1f39
 	github.com/cloudevents/sdk-go/v2 v2.1.0
 	github.com/ghodss/yaml v1.0.0
@@ -22,13 +22,14 @@ require (
 	go.uber.org/zap v1.16.0
 	golang.org/x/oauth2 v0.0.0-20201208152858-08078c50e5b5
 	gomodules.xyz/jsonpatch/v2 v2.1.0
+	google.golang.org/api v0.36.0
 	k8s.io/api v0.18.12
 	k8s.io/apimachinery v0.18.12
 	k8s.io/client-go v11.0.1-0.20190805182717-6502b5e7b1b5+incompatible
 	k8s.io/code-generator v0.18.12
 	k8s.io/klog v1.0.0
 	k8s.io/kube-openapi v0.0.0-20200410145947-bcb3869e6f29
-	knative.dev/pkg v0.0.0-20210107022335-51c72e24c179
+	knative.dev/pkg v0.0.0-20210120200253-8cd47b5af35d
 )
 
 // Knative deps (release-0.20)

@@ -18,6 +18,8 @@ package main
 
 import (
 	"flag"
+	"github.com/tektoncd/pipeline/pkg/apis/pipeline/v1beta1"
+	filteredinformerfactory "knative.dev/pkg/client/injection/kube/informers/factory/filtered"
 	"log"
 	"net/http"
 	"os"
@@ -109,6 +111,7 @@ func main() {
 		log.Fatal(http.ListenAndServe(":"+port, mux))
 	}()
 
+	ctx = filteredinformerfactory.WithSelectors(ctx, v1beta1.ManagedByLabelKey)
 	sharedmain.MainWithConfig(ctx, ControllerLogKey, cfg,
 		taskrun.NewController(*namespace, images),
 		pipelinerun.NewController(*namespace, images),
