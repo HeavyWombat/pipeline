@@ -2,6 +2,8 @@ package testing
 
 import (
 	"context"
+	"testing"
+
 	"github.com/tektoncd/pipeline/pkg/apis/pipeline/v1beta1"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/record"
@@ -9,7 +11,6 @@ import (
 	_ "knative.dev/pkg/client/injection/kube/informers/factory/filtered/fake"
 	"knative.dev/pkg/injection"
 	logtesting "knative.dev/pkg/logging/testing"
-	"testing"
 
 	"github.com/tektoncd/pipeline/pkg/reconciler/events/cloudevent"
 	"go.uber.org/zap"
